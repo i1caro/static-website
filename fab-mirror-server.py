@@ -52,7 +52,7 @@ def download_site():
 
 def setup_nginx():
     run('chown -R www-data:www-data /var/www')
-    run('service nginx restarty')
+    run('service nginx restart')
 
 PYTHON_SCRIPT = """\
 #!/usr/bin/env python
