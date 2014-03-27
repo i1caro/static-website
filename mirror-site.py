@@ -95,7 +95,7 @@ if __name__ == '__main__':
     print 'Mirroring {}'.format(site)
     mirror(site)
     print 'Merging files'
-  # merge_files(site)
+  merge_files(site)
   turn_full_path_links_into_relative(site)
 
 
