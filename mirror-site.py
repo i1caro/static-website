@@ -89,13 +89,22 @@ if __name__ == '__main__':
   parser.add_argument('-d', '--dont-mirror', action='store_true', help='dont mirror the website')
   args = parser.parse_args()
 
-  site = args.site or 'www.elastichosts.com'
+  sites = [
+    'www.elastichosts.com',
+    'www.elastichosts.co.uk',
+    'www.elastichosts.com.hk',
+    'www.elastichosts.nl',
+    'www.elastichosts.com.au'
+  ]
+  if args.site:
+    sites = list(args.site)
 
-  if not args.dont_mirror:
-    print 'Mirroring {}'.format(site)
-    mirror(site)
-    print 'Merging files'
-  merge_files(site)
-  turn_full_path_links_into_relative(site)
+  for site in sites:
+    if not args.dont_mirror:
+      print 'Mirroring {}'.format(site)
+      mirror(site)
+      print 'Merging files'
+    merge_files(site)
+    turn_full_path_links_into_relative(site)
 
 
