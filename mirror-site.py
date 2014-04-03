@@ -24,14 +24,14 @@ GETREQUEST = re.compile('(.*)\?.*$')
 # this might break because of lack of keys wrong ip or wrong directories
 def rsync_assets():
   call(['rsync', '-av', '--progress', 'root@5.44.25.231:/home/elastic-blog/public_html/wp-content/', '/var/www/assets/wp-content/'])
-  call(['rsync', '-av', '--progress', 'root@5.44.25.231:/home/elastic-blog/public_html/wp-include/', '/var/www/assets/wp-include/'])
+  call(['rsync', '-av', '--progress', 'root@5.44.25.231:/home/elastic-blog/public_html/wp-includes/', '/var/www/assets/wp-includes/'])
 
 
 def link_assets(site):
   call(['rm', '-r', '/var/www/{0}/wp-content/'.format(site)])
   call(['ln', '-s', '/var/www/assets/wp-content/', '/var/www/{0}/wp-content/'.format(site)])
-  call(['rm', '-r', '/var/www/{0}/wp-include/'.format(site)])
-  call(['ln', '-s', '/var/www/assets/wp-include/', '/var/www/{0}/wp-include/'.format(site)])
+  call(['rm', '-r', '/var/www/{0}/wp-includes/'.format(site)])
+  call(['ln', '-s', '/var/www/assets/wp-includes/', '/var/www/{0}/wp-includes/'.format(site)])
 
 
 def mirror(site):
@@ -118,11 +118,13 @@ if __name__ == '__main__':
   ]
   if args.site:
     sites = list(args.site)
+    rsync_assets()
 
   for site in sites:
     if not args.dont_mirror:
       print 'Mirroring {0}'.format(site)
       mirror(site)
+      link_assets(site)
       print 'Merging files'
     merge_files(site)
     turn_full_path_links_into_relative(site)
