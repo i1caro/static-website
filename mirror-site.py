@@ -21,11 +21,31 @@ import re
 GETREQUEST = re.compile('(.*)\?.*$')
 
 
+# this might break because of lack of keys wrong ip or wrong directories
+def rsync_assets():
+  call(['rsync', '-av', '--progress', 'root@5.44.25.231:/home/elastic-blog/public_html/wp-content/', '/var/www/assets/wp-content/'])
+  call(['rsync', '-av', '--progress', 'root@5.44.25.231:/home/elastic-blog/public_html/wp-include/', '/var/www/assets/wp-include/'])
+
+
+def link_assets(site):
+  call(['rm', '-r', '/var/www/{0}/wp-content/'.format(site)])
+  call(['ln', '-s', '/var/www/assets/wp-content/', '/var/www/{0}/wp-content/'.format(site)])
+  call(['rm', '-r', '/var/www/{0}/wp-include/'.format(site)])
+  call(['ln', '-s', '/var/www/assets/wp-include/', '/var/www/{0}/wp-include/'.format(site)])
+
+
 def mirror(site):
-  call(['wget', '--mirror', '--page-requisites', site])
+  call([
+        'wget',
+        '--mirror',
+        '--exclude-domains',
+          '{0}/blog/'.format(site),
+          '{0}/support/'.format(site),
+        '--page-requisites',
+        site])
   # Also add special files that wget ignores
-  call(['wget', '--mirror', '--page-requisites', 'http://{}/wp-includes/js/comment-reply.js'.format(site)])
-  call(['wget', '--mirror', '--page-requisites', 'http://{}/wp-includes/js/jquery/jquery.js'.format(site)])
+  call(['wget', '--mirror', '--page-requisites', 'http://{0}/wp-includes/js/comment-reply.js'.format(site)])
+  call(['wget', '--mirror', '--page-requisites', 'http://{0}/wp-includes/js/jquery/jquery.js'.format(site)])
 
 
 def merge_files(site):
@@ -61,7 +81,7 @@ def to_relative(directorypath, match):
 
 
 def turn_full_path_links_into_relative(site):
-  regex_url = re.compile('[\'\"](https?\:\/\/{}\/)(.+?)[\'\"]'.format(site))
+  regex_url = re.compile('[\'\"](https?\:\/\/{0}\/)(.+?)[\'\"]'.format(site))
   for directorypath, directoryname, files in os.walk(site):
     for filename in files:
       current_file = os.path.join(directorypath, filename)
@@ -90,18 +110,18 @@ if __name__ == '__main__':
   args = parser.parse_args()
 
   sites = [
-    'www.elastichosts.com',
-    'www.elastichosts.co.uk',
-    'www.elastichosts.com.hk',
-    'www.elastichosts.nl',
-    'www.elastichosts.com.au'
+    # 'www.elastichosts.com',
+    'www-dev.elastichosts.co.uk',
+    'www-dev.elastichosts.com.hk',
+    'www-dev.elastichosts.nl',
+    'www-dev.elastichosts.com.au'
   ]
   if args.site:
     sites = list(args.site)
 
   for site in sites:
     if not args.dont_mirror:
-      print 'Mirroring {}'.format(site)
+      print 'Mirroring {0}'.format(site)
       mirror(site)
       print 'Merging files'
     merge_files(site)
